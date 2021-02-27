@@ -1,0 +1,5 @@
+menu "PN532 Options"
+	config PN532DEBUG
+		bool "Enable PN532 debug messages"
+		default false
+endmenu
