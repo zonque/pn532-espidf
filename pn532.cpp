@@ -28,7 +28,7 @@ PN532::PN532(gpio_num_t irqGPIO, gpio_num_t resetGPIO) : irqGPIO(irqGPIO), reset
         gpio_config_t io_conf;
         io_conf.intr_type = GPIO_INTR_NEGEDGE;
         io_conf.mode = GPIO_MODE_INPUT;
-        io_conf.pin_bit_mask = BIT(irqGPIO);
+        io_conf.pin_bit_mask = 1ULL << irqGPIO;
         io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
         io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
         if (gpio_config(&io_conf) != ESP_OK)
@@ -48,7 +48,7 @@ void PN532::reset() {
         gpio_config_t io_conf;
         io_conf.intr_type = GPIO_INTR_DISABLE;
         io_conf.mode = GPIO_MODE_OUTPUT;
-        io_conf.pin_bit_mask = BIT(resetGPIO);
+        io_conf.pin_bit_mask = 1ULL << resetGPIO;
         io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
         io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
         if (gpio_config(&io_conf) != ESP_OK)
