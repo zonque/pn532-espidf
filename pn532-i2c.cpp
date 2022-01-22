@@ -8,8 +8,11 @@
 #include "pn532-i2c.h"
 #include "pn532-debug.h"
 
-PN532_I2C::PN532_I2C(i2c_port_t i2c_port, gpio_num_t irqGPIO, gpio_num_t resetGPIO) :
-        PN532(irqGPIO, resetGPIO), i2c_port(i2c_port) {
+#define mutex_lock(x)       do {} while (xSemaphoreTake(x, portMAX_DELAY) != pdPASS)
+#define mutex_unlock(x)     do { xSemaphoreGive(x); } while(0)
+
+PN532_I2C::PN532_I2C(i2c_port_t i2c_port, gpio_num_t irqGPIO, gpio_num_t resetGPIO, xSemaphoreHandle i2c_lock) :
+        PN532(irqGPIO, resetGPIO), i2c_port(i2c_port), i2c_lock(i2c_lock) {
         //Needed due to long wake up procedure on the first command on i2c bus. May be decreased
         i2c_set_timeout (i2c_port, 400000);
 }
@@ -27,6 +30,8 @@ bool PN532_I2C::read(uint8_t *buff, uint8_t n) {
         i2c_cmd_handle_t i2ccmd;
         uint8_t *buffer = (uint8_t *) malloc(n + 3);
 
+        mutex_lock(i2c_lock);
+
         vTaskDelay(10 / portTICK_PERIOD_MS);
         bzero(buffer, n + 3);
         bzero(buff, n);
@@ -43,11 +48,13 @@ bool PN532_I2C::read(uint8_t *buff, uint8_t n) {
         if (i2c_master_cmd_begin(i2c_port, i2ccmd, I2C_READ_TIMEOUT / portTICK_RATE_MS) != ESP_OK) {
                 //Reset i2c bus
                 i2c_cmd_link_delete(i2ccmd);
+                mutex_unlock(i2c_lock);
                 free(buffer);
                 return false;
         };
 
         i2c_cmd_link_delete(i2ccmd);
+        mutex_unlock(i2c_lock);
 
         memcpy(buff, buffer + 1, n);
 
@@ -95,6 +102,8 @@ void PN532_I2C::write(uint8_t *cmd, uint8_t cmdlen) {
         command[(cmdlen - 1) + 8] = ~checksum;
         command[(cmdlen - 1) + 9] = PN532_POSTAMBLE;
 
+        mutex_lock(i2c_lock);
+
         i2c_cmd_handle_t i2ccmd = i2c_cmd_link_create();
         i2c_master_start(i2ccmd);
         i2c_master_write_byte(i2ccmd, command[0], true);
@@ -130,6 +139,7 @@ void PN532_I2C::write(uint8_t *cmd, uint8_t cmdlen) {
         }
 
         i2c_cmd_link_delete(i2ccmd);
+        mutex_unlock(i2c_lock);
 
         free(command);
 }
