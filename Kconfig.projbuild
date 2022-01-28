@@ -2,4 +2,21 @@ menu "PN532 Options"
 	config PN532DEBUG
 		bool "Enable PN532 debug messages"
 		default false
+
+	config PN532_GPIO
+		bool "Enable PN532 GPIO functions"
+		default false
+
+	config PN532_PN532_MIFARE
+		bool "Enable PN532 Mifare classic / Mifare ultralight functions"
+		default false	
+
+	config PN532_PN532_NTAG
+		bool "Enable PN532 NTAG 2xx functions"
+		default false	
+
+	config PN532_PN532_TARGET
+		bool "Enable PN532 target functions"
+		default false	
+	
 endmenu

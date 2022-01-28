@@ -163,6 +163,8 @@ uint32_t PN532::getFirmwareVersion() {
         return response;
 }
 
+#ifdef CONFIG_PN532_GPIO
+
 /**************************************************************************/
 /*!
  Writes an 8-bit value that sets the state of the PN532's GPIO pins
@@ -243,7 +245,7 @@ uint8_t PN532::readGPIO() {
 
         int p3offset = 7;
 
-#ifdef CONFIG_PN532DEBUG
+#ifdef CONFIG_PN532_DEBUG
         ESP_LOGI(TAG, "Received:");
         esp_log_buffer_hex(TAG,pn532_packetbuffer,11);
         printf ("\n");
@@ -267,6 +269,7 @@ uint8_t PN532::readGPIO() {
 
         return pn532_packetbuffer[p3offset];
 }
+#endif // CONFIG_PN532_GPIO
 
 /**************************************************************************/
 /*!
@@ -504,6 +507,8 @@ bool PN532::inListPassiveTarget () {
 
         return true;
 }
+
+#ifdef CONFIG_PN532_MIFARE
 
 /***** Mifare Classic Functions ******/
 
@@ -867,7 +872,9 @@ uint8_t PN532::mifareultralight_WritePage(uint8_t page, const uint8_t *data)
         // Return OK Signal
         return 1;
 }
+#endif // CONFIG_PN532_MIFARE
 
+#ifdef PN532_NTAG
 /***** NTAG2xx Functions ******/
 
 /**************************************************************************/
@@ -1076,3 +1083,5 @@ uint8_t PN532::ntag2xx_WriteNDEFURI(uint8_t uriIdentifier, char *url, uint8_t da
 
         return 1;
 }
+
+#endif // PN532_NTAG

@@ -4,7 +4,7 @@
 
 #define TAG "PN532"
 
-#ifdef CONFIG_PN532DEBUG
+#ifdef CONFIG_PN532_DEBUG
 #define PN532_DEBUG(format, ...)                        \
         do {                                            \
                 ESP_LOGI(TAG, format, ##__VA_ARGS__);   \

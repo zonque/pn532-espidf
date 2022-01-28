@@ -139,8 +139,6 @@ public:
         bool SAMConfig();
         uint32_t getFirmwareVersion();
         bool sendCommandCheckAck(uint8_t *cmd, uint8_t cmdlen, uint16_t timeout);
-        bool writeGPIO(uint8_t pinstate);
-        uint8_t readGPIO();
         bool setPassiveActivationRetries(uint8_t maxRetries);
 
         // ISO14443A functions
@@ -148,6 +146,12 @@ public:
         bool inDataExchange(uint8_t * send, uint8_t sendLength, uint8_t * response, uint8_t * responseLength);
         bool inListPassiveTarget();
 
+#ifdef CONFIG_PN532_GPIO
+        bool writeGPIO(uint8_t pinstate);
+        uint8_t readGPIO();
+#endif // CONFIG_PN532_GPIO
+
+#ifdef CONFIG_PN532_MIFARE
         // Mifare Classic functions
         bool mifareclassic_IsFirstBlock(uint32_t uiBlock);
         bool mifareclassic_IsTrailerBlock(uint32_t uiBlock);
@@ -160,14 +164,19 @@ public:
         // Mifare Ultralight functions
         uint8_t mifareultralight_ReadPage(uint8_t page, uint8_t * buffer);
         uint8_t mifareultralight_WritePage(uint8_t page, const uint8_t * data);
+#endif
 
+#ifdef PN532_NTAG
         // NTAG2xx functions
         uint8_t ntag2xx_ReadPage(uint8_t page, uint8_t * buffer);
         uint8_t ntag2xx_WritePage(uint8_t page, uint8_t * data);
         uint8_t ntag2xx_WriteNDEFURI(uint8_t uriIdentifier, char * url, uint8_t dataLen);
+#endif
 
+#ifdef CONFIG_PN532_TARGET
         //Target command
         bool initiate_as_target_106();
+#endif
 
         // Needs to be public to be callable from the static handler
         void irqHandler();
